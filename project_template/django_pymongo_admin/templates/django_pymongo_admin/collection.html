@@ -1,0 +1,31 @@
+{% extends 'django_pymongo_admin/base.html' %}
+{% load django_pymongo_admin_tags %}
+
+{% block head_title %}Collection: {{ collection }}{% endblock %}
+
+{% block content %}
+<h1>Rows for collection: {{ collection }}</h1>
+
+<h1>rows.count - {{ rows.count }}</h1>
+<h1>page size: {{ page_size }}</h1>
+<h1>page: {{ page }}</h1>
+<table class="table table-condensed table-bordered">
+  <thead>
+    <tr>
+     {% for field in fields %}
+     <th>{{ field }}</th>
+     {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in rows %}
+    <tr>
+      {% for field in fields %}
+        <td>{% collection_field_value row field %}</td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

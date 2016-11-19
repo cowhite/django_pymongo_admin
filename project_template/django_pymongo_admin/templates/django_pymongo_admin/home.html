@@ -1,0 +1,23 @@
+{% extends 'django_pymongo_admin/base.html' %}
+
+{% block head_title %}Home: Collections{% endblock %}
+
+{% block content %}
+<h1>Collections</h1>
+
+<table class="table table-condensed table-bordered">
+  <thead>
+    <tr>
+     <th>Name</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for c in collections %}
+    <tr>
+      <td><a href="{% url 'django-pymongo-admin:collection' c %}">{{ c }}</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

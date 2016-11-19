@@ -37,6 +37,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+
+    # Custom apps
+    'django_pymongo_admin'
 ]
 
 MIDDLEWARE = [
@@ -54,7 +58,7 @@ ROOT_URLCONF = 'project_template.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -118,3 +122,20 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
+
+SITE_ID = 1
+
+
+MONGO_HOST = "127.0.0.1"
+MONGO_PORT = 27017
+MONGO_DB_NAME = "cowhite-db"
+MONGO_UID = ""
+MONGO_PWD = ""
+
+from pymongo import MongoClient
+def mongoconnection(MONGO_HOST, MONGO_PORT, MONGO_DB):
+    client = MongoClient(MONGO_HOST, MONGO_PORT)
+    mdb = client[MONGO_DB]
+    return mdb
+
+MONGO_DB = mongoconnection(MONGO_HOST, MONGO_PORT, MONGO_DB_NAME)
