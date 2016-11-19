@@ -23,3 +23,10 @@ def pymongo_pagination(context):
 @register.filter
 def sub(n, x):
     return n-x
+
+@register.simple_tag(takes_context=True)
+def get_param_value(context, field):
+    if field in context:
+        return context[field]
+    else:
+        return ''

@@ -21,7 +21,21 @@ class CollectionView(TemplateView):
     def get_context_data(self, *args, **kwargs):
         context = super(CollectionView, self).get_context_data(*args, **kwargs)
         collection = db.get_collection(kwargs['collection'])
-        q_main = collection.find()
+        collection_columns_record = db.collection_columns.find_one(
+            {"name": kwargs['collection']})
+        collection_columns = []
+        if collection_columns_record:
+            collection_columns = collection_columns_record['fields']
+
+        search_dict = {}
+        for column in collection_columns:
+            if column in self.request.GET:
+                val = self.request.GET.get(column, None)
+                if val:
+                    search_dict[column] = {
+                        "$regex": val}
+
+        q_main = collection.find(search_dict)
         page = self.request.GET.get('page')
         page_size = 3
         pages = q_main.count()/page_size

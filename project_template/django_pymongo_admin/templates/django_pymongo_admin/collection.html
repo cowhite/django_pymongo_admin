@@ -9,11 +9,13 @@
 <h1>rows.count - {{ rows.count }}</h1>
 <h1>page size: {{ page_size }}</h1>
 <h1>page: {{ page }}</h1>
+<form>
+<input type="submit" value="Search" class="btn btn-primary" />
 <table class="table table-condensed table-bordered">
   <thead>
     <tr>
      {% for field in fields %}
-     <th>{{ field }}</th>
+     <th><input type='text' name='{{ field }}' value='{% get_param_value field %}' /><br>{{ field }}</th>
      {% endfor %}
     </tr>
   </thead>
@@ -27,6 +29,7 @@
     {% endfor %}
   </tbody>
 </table>
+</form>
 
 {% pymongo_pagination %}
 
