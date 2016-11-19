@@ -17,14 +17,27 @@
      {% for field in fields %}
      <th><input type='text' name='{{ field }}' value='{% get_param_value field %}' /><br>{{ field }}</th>
      {% endfor %}
+     <th>Options</th>
     </tr>
   </thead>
   <tbody>
     {% for row in rows %}
     <tr>
+      {% collection_field_value row "_id" as object_id_value %}
       {% for field in fields %}
-        <td>{% collection_field_value row field %}</td>
+        {% collection_field_value row field as row_value %}
+
+        {% if field == "_id" %}
+        <td><a href="{% url 'django-pymongo-admin:object-view' collection row_value %}">{{ row_value }}</a></td>
+        {% else %}
+        <td>{{ row_value }}</td>
+        {% endif %}
       {% endfor %}
+      <td>
+        <a href="{% url 'django-pymongo-admin:object-edit' collection object_id_value %}" class="btn btn-primary">Edit</a>
+
+        <a href="javascript:;" data-href="{% url 'django-pymongo-admin:object-delete' collection object_id_value %}" class="btn btn-danger delete-obj">Delete</a>
+      </td>
     </tr>
     {% endfor %}
   </tbody>
@@ -32,5 +45,27 @@
 </form>
 
 {% pymongo_pagination %}
+
+{% endblock %}
+
+{% block bottom_scripts %}
+<script type="text/javascript">
+  $(".delete-obj").click(function(){
+    var res = confirm("Are you sure want to delete ?"),
+      $this = $(this),
+      url = $this.data("href"),
+      csrfmiddlewaretoken = "{{ csrf_token }}";
+    if(res){
+      $.ajax({
+        url: url,
+        data: {"csrfmiddlewaretoken": csrfmiddlewaretoken},
+        type: "post",
+        "success": function(res){
+          $this.closest("tr").slideUp();
+        }
+      });
+    }
+  });
+</script>
 
 {% endblock %}

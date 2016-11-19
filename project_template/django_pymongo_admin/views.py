@@ -1,12 +1,18 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
-
+from django.http import JsonResponse
 from django.conf import settings
+from django.core.urlresolvers import reverse
+
+from bson.objectid import ObjectId
 
 db = settings.MONGO_DB
 
 
 class HomeView(TemplateView):
+    '''
+    Admin home - shows list of collections
+    '''
     template_name = "django_pymongo_admin/home.html"
 
     def get_context_data(self, *args, **kwargs):
@@ -16,6 +22,9 @@ class HomeView(TemplateView):
 
 
 class CollectionView(TemplateView):
+    '''
+    Show records/rows in a collection
+    '''
     template_name = "django_pymongo_admin/collection.html"
 
     def get_context_data(self, *args, **kwargs):
@@ -50,9 +59,6 @@ class CollectionView(TemplateView):
             # If page is not an integer, deliver first page.
             page = 1
             q = q_main.limit(page_size)
-        # except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
-            # q = q_main.skip((pages-1)*page_size).limit(page_size)
         context['page_size'] = page_size
         context['page'] = page
         context['total_count'] = pages
@@ -68,3 +74,50 @@ class CollectionView(TemplateView):
         context['fields'] = fields
 
         return context
+
+
+def object_view(request, collection, object_id):
+    '''
+    View Mongo record in JSON format
+    '''
+    collection = db.get_collection(collection)
+    obj = collection.find_one({"_id": ObjectId(object_id)})
+    obj["_id"] = object_id
+    return JsonResponse(obj, safe=False)
+
+
+def object_delete_view(request, collection, object_id):
+    '''
+    Delete Mongo Record
+    Whether to actually delete or to set status as Deleted need to provided in
+    settings
+    '''
+    if request.method == "POST":
+        collection = db.get_collection(collection)
+        obj = collection.delete_one({"_id": ObjectId(object_id)})
+        return JsonResponse({"message": "Deleted successfully"})
+
+
+def object_edit_view(request, collection, object_id):
+    '''
+    Edit Mongo Record
+    '''
+    collection_obj = db.get_collection(collection)
+    obj = collection_obj.find_one({"_id": ObjectId(object_id)})
+    if request.method == "GET":
+        return render(
+            request, "django_pymongo_admin/object_edit.html", {"obj": obj})
+    if request.method == "POST":
+        data_to_update = {}
+        edited = False
+        for key in obj:
+            if key in request.POST and key != "_id":
+                data_to_update[key] = request.POST[key]
+                edited = True
+        if edited:
+            collection_obj.update(obj, data_to_update)
+        return redirect(reverse(
+            "django-pymongo-admin:object-view", args=[
+                collection, object_id
+            ]))
+

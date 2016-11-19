@@ -1,0 +1,23 @@
+{% extends 'django_pymongo_admin/base.html' %}
+{% load django_pymongo_admin_tags %}
+
+{% block head_title %}Edit Object{% endblock %}
+
+{% block content %}
+<h1>Edit Object</h1>
+
+<form method="post">
+  {% csrf_token %}
+{% for key, val in obj.items %}
+  {% if key != "_id" %}
+  <div>
+    <p>{{ key }}:</p>
+    <textarea name="{{ key }}">{{ val }}</textarea>
+  </div>
+  {% endif %}
+{% endfor %}
+
+<input type="submit" class="btn btn-primary" value="Submit" />
+</form>
+
+{% endblock %}

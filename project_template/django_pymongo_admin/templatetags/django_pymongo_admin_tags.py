@@ -5,8 +5,10 @@ register = template.Library()
 @register.simple_tag
 def collection_field_value(row, field):
     if field in row:
-        return row[field]
-
+        value = row[field]
+        if field == "_id":
+            value = str(value)
+        return value
 
 @register.inclusion_tag(
     "django_pymongo_admin/includes/pagination.html", takes_context=True)
