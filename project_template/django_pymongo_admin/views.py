@@ -23,7 +23,7 @@ class CollectionView(TemplateView):
         collection = db.get_collection(kwargs['collection'])
         q_main = collection.find()
         page = self.request.GET.get('page')
-        page_size = 10
+        page_size = 3
         pages = q_main.count()/page_size
 
         try:
@@ -34,12 +34,14 @@ class CollectionView(TemplateView):
                 q = q_main.skip((page-1)*page_size).limit(page_size)
         except TypeError:
             # If page is not an integer, deliver first page.
+            page = 1
             q = q_main.limit(page_size)
         # except EmptyPage:
             # If page is out of range (e.g. 9999), deliver last page of results.
             # q = q_main.skip((pages-1)*page_size).limit(page_size)
         context['page_size'] = page_size
         context['page'] = page
+        context['total_count'] = pages
         fields = []
         for x in q:
             keys = x.keys()
